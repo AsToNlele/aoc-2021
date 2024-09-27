@@ -19,3 +19,9 @@ impl ToInt for String {
         self.parse::<i32>().unwrap_or(0)
     }
 }
+
+impl ToInt for &str {
+    fn to_int(&self) -> i32 {
+        self.parse::<i32>().unwrap_or(0)
+    }
+}
