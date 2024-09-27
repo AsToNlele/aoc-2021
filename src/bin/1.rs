@@ -1,21 +1,19 @@
-#![allow(dead_code)]
-use std::io::prelude::*;
-use std::{fs::File, io::BufReader};
+use aoc_2021::get_lines;
+use aoc_2021::ToInt;
 
-fn main() {
-    // part_one().unwrap();
-    part_two().unwrap();
+fn main() -> std::io::Result<()> {
+    let lines = get_lines("inputs/1.txt")?;
+    part_one(&lines).unwrap();
+    part_two(&lines).unwrap();
+    Ok(())
 }
 
-fn part_one() -> std::io::Result<()> {
-    let file = File::open("inputs/1.txt")?;
-    let reader = BufReader::new(file);
-
+fn part_one(lines: &Vec<String>) -> std::io::Result<()> {
     let mut increased = 0;
     let mut prev_value = 0;
 
-    for line in reader.lines() {
-        let value: i32 = match line?.parse() {
+    for line in lines {
+        let value: i32 = match line.parse() {
             Ok(num) => num,
             Err(_) => continue,
         };
@@ -28,39 +26,23 @@ fn part_one() -> std::io::Result<()> {
         }
         prev_value = value;
     }
-
-    println!("{}", increased);
-
+    println!("Part 1: {}", increased);
     Ok(())
 }
 
-trait ToInt {
-    fn to_int(&self) -> i32;
-}
-
-impl ToInt for String {
-    fn to_int(&self) -> i32 {
-        self.parse::<i32>().unwrap_or(0)
-    }
-}
-
-fn part_two() -> std::io::Result<()> {
-    let file = File::open("inputs/1.txt")?;
-    let reader = BufReader::new(file);
-    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
-
+fn part_two(lines: &[String]) -> std::io::Result<()> {
     let mut increased = 0;
 
     for i in 0..lines.len() {
         if i < 3 {
             continue;
         }
-        let prev_sum = lines[i-3].to_int() + lines[i-2].to_int() + lines[i-1].to_int();
-        let sum = lines[i-2].to_int() + lines[i-1].to_int() + lines[i].to_int();
+        let prev_sum = lines[i - 3].to_int() + lines[i - 2].to_int() + lines[i - 1].to_int();
+        let sum = lines[i - 2].to_int() + lines[i - 1].to_int() + lines[i].to_int();
         if sum > prev_sum {
-           increased+=1; 
+            increased += 1;
         }
     }
-    println!("{}", increased);
+    println!("Part 2: {}", increased);
     Ok(())
 }
