@@ -91,40 +91,26 @@ impl BingoBoard {
     }
 
     fn set_found(&mut self, found_number: i32) -> bool {
-        for row in &mut self.numbers {
-            for number in row {
-                if number.value == found_number {
-                    number.found = true;
-                    return true;
-                }
-            }
-        }
-        false
+        self.numbers
+            .iter_mut()
+            .flat_map(|row| row.iter_mut())
+            .find(|number| number.value == found_number)
+            .map(|number| {
+                number.found = true;
+                true
+            })
+            .unwrap_or(false)
     }
 
-    fn check_solution(&mut self) -> bool {
-        for row in &self.numbers {
-            let mut found = 0;
-            for number in row {
-                if number.found {
-                    found += 1;
-                }
-            }
-            if found == self.numbers.len() {
-                return true;
-            }
-        }
-        for j in 0..self.numbers.len() {
-            let mut found = 0;
-            for i in 0..self.numbers.len() {
-                if self.numbers[i][j].found {
-                    found += 1;
-                }
-            }
-            if found == self.numbers.len() {
-                return true;
-            }
-        }
-        false
+    fn check_solution(&self) -> bool {
+        let row_bingo = self
+            .numbers
+            .iter()
+            .any(|row| row.iter().filter(|number| number.found).count() == self.numbers.len());
+
+        let column_bingo = (0..self.numbers.len())
+            .any(|j| self.numbers.iter().filter(|row| row[j].found).count() == self.numbers.len());
+
+        row_bingo || column_bingo
     }
 }
