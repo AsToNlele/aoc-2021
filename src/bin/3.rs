@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::io::Result;
 
 use aoc_2021::get_lines;
