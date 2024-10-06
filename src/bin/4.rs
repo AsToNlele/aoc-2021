@@ -1,15 +1,20 @@
-#![allow(dead_code)]
 use aoc_2021::{get_lines, ToInt};
 use std::io::Result;
 
 fn main() -> Result<()> {
     let lines = get_lines("inputs/4.txt")?;
-    part_one(&lines);
+    let solutions = solve(&lines);
+
+    let part_one = solutions.first().unwrap();
+    let part_two = solutions.last().unwrap();
+
+    println!("Part one: {}", part_one);
+    println!("Part two: {}", part_two);
 
     Ok(())
 }
 
-fn part_one(lines: &[String]) {
+fn solve(lines: &[String]) -> Vec<i32> {
     let mut lines_iter = lines.iter().peekable();
 
     let number_queue: Vec<_> = lines_iter
@@ -25,8 +30,12 @@ fn part_one(lines: &[String]) {
         bbs.push(BingoBoard::load(&mut lines_iter));
     }
 
+    let total_bbs = bbs.len();
+
+    let mut solutions: Vec<i32> = vec![];
+
     for num in number_queue {
-        for bingo_board1 in &mut bbs {
+        for (index, bingo_board1) in &mut bbs.iter_mut().enumerate() {
             let found = bingo_board1.set_found(num);
             if found {
                 let solved = bingo_board1.check_solution();
@@ -34,12 +43,19 @@ fn part_one(lines: &[String]) {
                     let sum: i32 = bingo_board1.numbers.iter().fold(0, |acc, x| {
                         acc + x.iter().filter(|y| !y.found).map(|x| x.value).sum::<i32>()
                     });
-                    println!("Part 1: {}", sum * num);
-                    return;
+                    println!("Bingo Board index: {}, solution: {}", index, sum * num);
+                    solutions.push(sum * num);
+                    bingo_board1.solved = true;
+                    if solutions.len() == total_bbs {
+                        return solutions;
+                    }
                 }
             }
         }
+        bbs.retain(|b| !b.solved);
     }
+
+    solutions
 }
 
 #[derive(Debug)]
@@ -64,6 +80,7 @@ impl BingoNumber {
 #[derive(Debug)]
 struct BingoBoard {
     numbers: Vec<Vec<BingoNumber>>,
+    solved: bool,
 }
 
 impl BingoBoard {
@@ -88,7 +105,10 @@ impl BingoBoard {
             }
             count += 1;
         }
-        BingoBoard { numbers }
+        BingoBoard {
+            numbers,
+            solved: false,
+        }
     }
 
     fn set_found(&mut self, found_number: i32) -> bool {
